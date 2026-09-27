@@ -19,6 +19,7 @@ class Order(db.Model):
   status = db.Column(db.Enum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
   total_cents = db.Column(db.Integer , nullable = False)
   created_at = db.Column(db.DateTime , default = datetime.utcnow)
+  items = db.relationship("OrderItem", backref="order", lazy="joined", cascade="all, delete-orphan")
 
 
 class OrderItem(db.Model):

@@ -19,6 +19,8 @@ class User(db.Model):
 
   role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.CUSTOMER)
   created_at = db.Column(db.DateTime, default=datetime.utcnow)
+  products = db.relationship("Product", backref="seller", lazy="dynamic")
+  orders = db.relationship("Order", backref="customer", lazy="dynamic")
 
   def set_password(self, raw_password):
     self.password_hash = generate_password_hash(raw_password)
