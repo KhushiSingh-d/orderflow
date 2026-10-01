@@ -12,4 +12,7 @@ def create_app():
   
   from app.models import user, product, order #noqa: F401
 
+  from app.routes.auth import auth_bp
+  app.register_blueprint(auth_bp, url_prefix="/api/auth")
+
   return app
