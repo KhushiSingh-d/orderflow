@@ -1,6 +1,8 @@
 from flask import Blueprint
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
+from flask_jwt_extended import jwt_required
+from app.utils.decorators import role_required
 
 from app.extensions import db
 from app.models.user import User
@@ -40,8 +42,15 @@ def login():
 
   if not user or not user.check_password(password or ""):
     return jsonify({"error": "invalid credentials"}), 401
-
-  access_token = create_access_token(identity=str(user.id))
+  
+  additional_claims = {"role": user.role.value}
+  access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
 
   return jsonify({"access_token": access_token}), 200
+
+@auth_bp.get("/seller-only")
+@jwt_required()
+@role_required("seller","admin")
+def seller_only():
+  return jsonify({"message": "you are a seller or admin"}), 200
 
