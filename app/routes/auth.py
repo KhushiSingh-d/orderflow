@@ -2,10 +2,10 @@ from flask import Blueprint
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required
-from app.utils.decorators import role_required
+from app.models.user import User, UserRole
 
 from app.extensions import db
-from app.models.user import User
+
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.get("/ping")
@@ -17,20 +17,24 @@ def register():
   data = request.get_json()
   email = data.get("email")
   password = data.get("password")
+  role = data.get("role", "customer")
 
   if not email or not password:
     return jsonify({"error": "email and password are required"}), 400
 
+  if role not in [r.value for r in UserRole]:
+    return jsonify({"error": "invalid role"}), 400
+
   if User.query.filter_by(email=email).first():
     return jsonify({"error": " email already registered"}), 409
 
-  user = User(email=email)
+  user = User(email=email, role = UserRole(role))
   user.set_password(password)
 
   db.session.add(user)
   db.session.commit()
 
-  return jsonify({"message": "user registered", "email": user.email}), 201
+  return jsonify({"message": "user registered", "email": user.email, "role": user.role.value}), 201
 
 @auth_bp.post("/login")
 def login():
@@ -48,9 +52,4 @@ def login():
 
   return jsonify({"access_token": access_token}), 200
 
-@auth_bp.get("/seller-only")
-@jwt_required()
-@role_required("seller","admin")
-def seller_only():
-  return jsonify({"message": "you are a seller or admin"}), 200
 

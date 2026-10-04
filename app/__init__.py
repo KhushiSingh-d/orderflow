@@ -2,7 +2,7 @@ from flask import Flask
 
 from app.config import Config
 from app.extensions import db, migrate, jwt
- 
+
 
 def create_app():
   app = Flask(__name__)
@@ -17,5 +17,8 @@ def create_app():
 
   from app.routes.auth import auth_bp
   app.register_blueprint(auth_bp, url_prefix="/api/auth")
+  
+  from app.routes.products import products_bp
+  app.register_blueprint(products_bp, url_prefix="/api/products")
 
   return app
