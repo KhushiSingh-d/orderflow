@@ -11,6 +11,14 @@ class OrderStatus(str,enum.Enum):
   DELIVERED  = "delivered"
   CANCELLED ="cancelled"
 
+VALID_TRANSITIONS = {
+  OrderStatus.PENDING: {OrderStatus.CONFIRMED, OrderStatus.CANCELLED},
+  OrderStatus.CONFIRMED: {OrderStatus.SHIPPED, OrderStatus.CANCELLED},
+  OrderStatus.SHIPPED: {OrderStatus.DELIVERED},
+  OrderStatus.DELIVERED: set(),
+  OrderStatus.CANCELLED: set(),
+}
+
 class Order(db.Model):
   __tablename__ = "orders"
   id = db.Column(db.Integer, primary_key = True)

@@ -21,4 +21,7 @@ def create_app():
   from app.routes.products import products_bp
   app.register_blueprint(products_bp, url_prefix="/api/products")
 
+  from app.routes.orders import orders_bp
+  app.register_blueprint(orders_bp, url_prefix="/api/orders")
+
   return app
