@@ -29,6 +29,18 @@ class Order(db.Model):
   created_at = db.Column(db.DateTime , default = datetime.utcnow)
   items = db.relationship("OrderItem", backref="order", lazy="joined", cascade="all, delete-orphan")
 
+  def to_dict(self):
+    return {
+      "id": self.id,
+      "customer_id": self.customer_id,
+      "status": self.status.value,
+      "total_cents": self.total_cents,
+      "items": [
+        {"product_id": i.product_id, "quantity": i.quantity, "unit_price_cents": i.unit_price_cents}
+        for i in self.items
+    ],
+  }
+
 
 class OrderItem(db.Model):
   __tablename__ = "order_items"
