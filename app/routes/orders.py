@@ -66,12 +66,11 @@ def create_order():
 @orders_bp.patch("/<int:order_id>/status")
 @jwt_required()
 def update_order_status(order_id):
-  order = Order.query.get_or_404(order_id)
+  order = Order.query.filter_by(id=order_id).with_for_update(of=Order).first_or_404()
   data = request.get_json()
 
   try:
     new_status = OrderStatus(data.get("status"))
-
   except ValueError:
     return jsonify({"error": "invalid status"}), 400
 
@@ -81,15 +80,18 @@ def update_order_status(order_id):
   if role == "customer":
     if order.customer_id != user_id:
       return jsonify({"error": "not your order"}), 403
-
     if new_status != OrderStatus.CANCELLED:
       return jsonify({"error": "customers can only cancel orders"}), 403
-
   elif role != "admin":
-    return jsonify({"error": "insufficient permission"}), 403
+    return jsonify({"error": "insufficient permissions"}), 403
 
   if new_status not in VALID_TRANSITIONS[order.status]:
     return jsonify({"error": f"cannot transition from {order.status.value} to {new_status.value}"}), 400
+
+  if new_status == OrderStatus.CANCELLED:
+    for item in order.items:
+      product = Product.query.filter_by(id=item.product_id).with_for_update().first()
+      product.stock_quantity += item.quantity
 
   order.status = new_status
   db.session.commit()
