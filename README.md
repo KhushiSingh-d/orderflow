@@ -22,6 +22,7 @@ In a multi-vendor store two customers can try to buy the last product at the sam
 - Order status state machine (pending, confirmed, shipped, delivered, cancelled) with validated transitions
 - Concurrency test: 5 simultaneous requests for a 1-unit product produce exactly 1 successful order
 - Order rules: only customers place orders; admins make any valid status change and customers can only cancel their own orders; quantities must be positive whole numbers; public sign-up is limited to customer and seller roles
+- Cancelling an order returns its items to stock, with row locks so a repeated cancel can't restore stock twice
 
 ## API endpoints
 
