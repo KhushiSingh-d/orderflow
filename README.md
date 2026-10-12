@@ -21,6 +21,7 @@ In a multi-vendor store two customers can try to buy the last product at the sam
 - Order placement that locks product rows (`SELECT ... FOR UPDATE`) and rolls back if any item lacks stock
 - Order status state machine (pending, confirmed, shipped, delivered, cancelled) with validated transitions
 - Concurrency test: 5 simultaneous requests for a 1-unit product produce exactly 1 successful order
+- Order rules: only customers place orders; admins make any valid status change and customers can only cancel their own orders; quantities must be positive whole numbers; public sign-up is limited to customer and seller roles
 
 ## API endpoints
 
@@ -30,5 +31,5 @@ In a multi-vendor store two customers can try to buy the last product at the sam
 | POST | `/api/auth/login` | Anyone | 200 |
 | GET  | `/api/products/` | Anyone | 200 |
 | POST | `/api/products/` | Seller/admin | 201 |
-| POST | `/api/orders/` | Logged in | 201 |
-| PATCH | `/api/orders/<order_id>/status` | Logged in | 200 |
+| POST | `/api/orders/` | Customer | 201 |
+| PATCH | `/api/orders/<order_id>/status` | Admin (any valid change); customer (cancel own order only) | 200 |

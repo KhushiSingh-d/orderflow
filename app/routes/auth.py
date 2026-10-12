@@ -22,7 +22,7 @@ def register():
   if not email or not password:
     return jsonify({"error": "email and password are required"}), 400
 
-  if role not in [r.value for r in UserRole]:
+  if role not in ["customer", "seller"]:
     return jsonify({"error": "invalid role"}), 400
 
   if User.query.filter_by(email=email).first():
